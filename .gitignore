@@ -1,0 +1,91 @@
+# Backups
+backups/20*/
+backups/data_db_FULL.sql
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.egg-info/
+*.egg
+*.venv/
+*.env
+!.env.example
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Distribution / Packaging
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swo
+*.DS_Store
+*.directory
+
+# Logs
+*.log
+logs/
+
+# OS-specific files
+*.DS_Store
+*.AppleDouble
+*.LSOverride
+
+# Thumbnails
+._*
+
+# Temporary files
+*.tmp
+*.temp
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Pyre type checker
+.pyre/
+
+# Mypy
+.mypy_cache/
+
+# Coverage reports
+.coverage
+.coverage.*
+*.cover
+*.py,cover
+nosetests.xml
+coverage.xml
+
+# Pytest
+.cache/
+
+# Flake8
+.flake8
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Black
+.pyproject.toml
+.virtual_documents/A2
+
+# Ruff 
+.ruff_cache/

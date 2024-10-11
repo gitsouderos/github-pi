@@ -1,0 +1,59 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+  db:
+    image: pgvector/pgvector:pg14
+    restart: always
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - PGUSER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=data_db
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data_db
+  runner:
+    build:
+      context: .
+      dockerfile: ./src/project/Dockerfile
+    develop:
+      watch:
+        - action: sync
+          path: ./src/project
+          target: /workspace/src/project
+          ignore:
+          - __pycache__/
+    stdin_open: true
+    tty: true
+    # ports:
+    #   - '8000:8000'
+    depends_on:
+      - db
+  ollama:
+    image: ollama/ollama:0.3.12
+    container_name: ollama
+    environment:
+      OLLAMA_DEBUG: 1
+      OLLAMA_HOST: "0.0.0.0"
+      OLLAMA_ORIGINS: "*"
+    ports:
+      - '31415:11434'
+    volumes:
+      - ollama:/root/.ollama
+volumes:
+  db:
+    name: data_mining_db
+    driver: local
+  ollama:
