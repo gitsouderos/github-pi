@@ -61,4 +61,4 @@ COPY .en[v] .env
 
 # Run the application.
 # ENTRYPOINT ["tail", "-f", "/dev/null"] # for debugging (keeps container alive)
-CMD python src/project/main.py
+CMD streamlit run src/project/ui/app.py

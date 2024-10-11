@@ -14,7 +14,7 @@ docker exec -it <container id> /bin/bash
 ```
 * Exec into db container, start sql command line with running
 ```bash
-docker exec -it data_mining_2024-db-1 /bin/bash
+docker exec -it github-pi-db-1 /bin/bash
 psql
 ```
 
@@ -38,7 +38,7 @@ docker compose logs -f
 
 * Dump Database
 ```bash
-docker exec -it data_mining_2024-db-1 /bin/bash
+docker exec -it github-pi-db-1 /bin/bash
 psql
 
 ```

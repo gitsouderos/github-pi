@@ -24,7 +24,7 @@ services:
       - '5432:5432'
     volumes: 
       - db:/var/lib/postgresql/data_db
-  runner:
+  app:
     build:
       context: .
       dockerfile: ./src/project/Dockerfile
@@ -37,10 +37,11 @@ services:
           - __pycache__/
     stdin_open: true
     tty: true
-    # ports:
-    #   - '8000:8000'
+    ports:
+      - '8501:8501'
     depends_on:
       - db
+      - ollama
   ollama:
     image: ollama/ollama:0.3.12
     container_name: ollama
@@ -54,6 +55,6 @@ services:
       - ollama:/root/.ollama
 volumes:
   db:
-    name: data_mining_db
+    name: github_db
     driver: local
   ollama:
