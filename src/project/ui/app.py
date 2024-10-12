@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import streamlit as st
 import time
 import google.generativeai as genai
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 load_dotenv()
 
 # Initialize model client 
@@ -19,6 +20,14 @@ model = genai.GenerativeModel(
             system_instruction="You are a helpful assistant named Github PI who is also a Github expert. Respond like you are a Private Investigator."
         )
 
+# Safety settings 
+safety_settings = {
+    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_ONLY_HIGH
+}
+
 # Set Tab title
 st.set_page_config(page_title="Github PI", page_icon=":robot_face:")
 
@@ -26,19 +35,33 @@ st.set_page_config(page_title="Github PI", page_icon=":robot_face:")
 st.markdown(
     """
     <style>
-    .sidebar .sidebar-content {
+    .sidebar-content {
         display: flex;
-        flex-direction: column;
+        justify-content: center;
         align-items: center;
+        height: 50px;
+    }
+    .sidebar-content button {
+        width: 100%; 
     }
     </style>
     """,
     unsafe_allow_html=True
 )
-
+# Function to reset chat
 def reset_chat():
     st.session_state.chat_session = model.start_chat(history=[])
+    
+# Function to transform chat history to Gemini format
+def transform_history(history):
+    conversation_history = []
+    
+    for h in history:
+        conversation_history.append({'role': 'user' if h['role'] == 'user' else 'model', 'parts': [{'text': h['content']}]})
+        
+    return conversation_history
 
+# Streamlit components setup
 st.title("Github PI")
 expander = st.expander("Disclaimer", icon="ℹ️")
 expander.write('''
@@ -48,9 +71,9 @@ expander.write('''
 ''')
 octo_img_url = IMG_PATH + '/octocat-1728395775384.png'
 with st.sidebar:
-    st.markdown("<h1 style='text-align: center;'>!Github Inc.</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 class='sidebar-content'>!Github Inc.</h1>", unsafe_allow_html=True)
 st.sidebar.image(octo_img_url)
-st.sidebar.button("Reset Chat", on_click=reset_chat)
+st.sidebar.button("Reset Chat", on_click=reset_chat, use_container_width=True)   
 st.sidebar.title("About")
 st.sidebar.info("Github PI is presented by: Group-11 => Anand, Finn, Georgios & Markus")
       
@@ -72,8 +95,10 @@ if prompt := st.chat_input("How can I help you today?"):
     st.session_state.chat_session.history.append(request)
     
     chat = model.start_chat(history=[])
-    stream = chat.send_message(prompt, stream=True)
-    # Generate assistant response
+    # Initialize chat history
+    chat.history = transform_history(st.session_state.chat_session.history)
+    stream = chat.send_message(prompt, stream=True, safety_settings=safety_settings)
+    # Generate streamed assistant response
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         response = ""
