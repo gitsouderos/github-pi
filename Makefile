@@ -16,4 +16,4 @@ migrate-db:
 	docker compose run --build runner alembic -c src/project/alembic.ini upgrade head
 reset-db:
 	docker compose down
-	docker volume rm data_mining_db
+	docker volume rm github-pi-db
