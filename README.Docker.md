@@ -1,4 +1,5 @@
-### Building and running your application
+### Building and running the application
+This file was originally generated using `docker init` which in of itself it a helpful docker command ;)
 
 When you're ready, start your application by running:
 `docker compose up --build` [-d] for detached.
