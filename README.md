@@ -5,7 +5,7 @@ As our final project in _LLMs and societel consequences_ we Implemented a chat a
 * [Docker and Docker Compose](https://www.docker.com/)
 * GNU Make
 * The database backup file can be downloaded [here](https://drive.google.com/file/d/1PQ9hRLftau4lqZJVjVWHx9Sto03Ccmr5/view)
-* To develop the application it is recomended to use Poetry v1.8.3 or above.
+* To develop the application it is recomended to use Poetry v1.8.3 or above. The backend/ui deps can be installed with `poetry install` and you can configure the env variables to point to your local (or docker hosted) services as you see fit.
 
 ## Starting the application from scratch
 The system runs within Docker so as long as you have docker installed on your environment, you should be good to go. If you want to run outside of docker, install the technologies listed in the compose.yaml file and go from there.

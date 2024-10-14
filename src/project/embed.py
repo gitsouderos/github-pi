@@ -14,14 +14,15 @@ def nanosec_to_sec(nanosec):
 
 
 def get_files(db: Session, offset: int, limit: int = 100) -> list[Readme]:
-
     try:
-        files = db.query(Readme)\
-            .where(Readme.embedding == None)\
-            .order_by(Readme.id.asc())\
-            .offset(offset)\
-            .limit(limit)\
-            .all()  # noqa E711
+        files = (
+            db.query(Readme)
+            .where(Readme.embedding == None)
+            .order_by(Readme.id.asc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )  # noqa E711
     except Exception as e:
         print(f"[!] ERROR get_files:\n{e.__cause__}")
 
@@ -51,7 +52,6 @@ def generate_embeddings(db: Session, client: ModelClient):
 
         contents = []
         for file in files:
-
             content = file.content
             if file.encoding == "base64":
                 content = b64decode(file.content)
@@ -69,16 +69,11 @@ def generate_embeddings(db: Session, client: ModelClient):
             print(f"[!!!] ERROR generating embeddings:\n{e}\n\n")
             pass
 
-
         assert len(vectors) == len(files), "Vectors mismatch files!"
         embeddings = []
         for idx, vector in enumerate(vectors):
             f = files[idx]
-            embeddings.append(Embedding(
-                embedding=vector,
-                file_id=f.id,
-                file=f
-                ))
+            embeddings.append(Embedding(embedding=vector, file_id=f.id, file=f))
         create_embeddings(db, embeddings)
         page += 1
 

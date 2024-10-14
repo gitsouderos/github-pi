@@ -5,11 +5,11 @@ from typing import Any, Generator
 
 
 sync_engine = create_engine(
-        DATABASE_URL,
-        pool_size=15,
-        max_overflow=20,
-        pool_timeout=60,
-        )
+    DATABASE_URL,
+    pool_size=15,
+    max_overflow=20,
+    pool_timeout=60,
+)
 
 
 def get_session() -> Generator[Session, Any, None]:

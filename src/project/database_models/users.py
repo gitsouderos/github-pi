@@ -53,7 +53,6 @@ class User(Base):
 
     @classmethod
     def from_instance(cls, user: GithubNamedUser):
-
         obj_data = user.raw_data
         obj_data["type_of"] = user.type
 
@@ -64,9 +63,10 @@ class User(Base):
 
     @classmethod
     def from_dict(cls, obj_data: dict[str, any]):
-
         valid_keys = {prop.key for prop in class_mapper(cls).iterate_properties}
-        valid_data = {k: v for k, v in obj_data.items() if k in valid_keys and v is not None}
+        valid_data = {
+            k: v for k, v in obj_data.items() if k in valid_keys and v is not None
+        }
 
         return cls(**valid_data)
 

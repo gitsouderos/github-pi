@@ -59,7 +59,7 @@ def get_anand_sesh() -> Session:
         "postgresql+psycopg://postgres:postgres@db:5432/postgres",
         pool_size=15,
         max_overflow=25,
-        pool_timeout=60
+        pool_timeout=60,
     )
     SessionLocal = sessionmaker(bind=secondary_engine)
     return SessionLocal()
@@ -68,11 +68,13 @@ def get_anand_sesh() -> Session:
 def get_anand_repos() -> list[RepositoryModel]:
     sesh = get_anand_sesh()
     try:
-        repos = sesh.query(RepositoryModel)\
-            .where(RepositoryModel.stargazers_count < 804)\
-            .order_by(RepositoryModel.stargazers_count.desc())\
-            .options(joinedload(RepositoryModel.languages))\
+        repos = (
+            sesh.query(RepositoryModel)
+            .where(RepositoryModel.stargazers_count < 804)
+            .order_by(RepositoryModel.stargazers_count.desc())
+            .options(joinedload(RepositoryModel.languages))
             .all()
+        )
         sesh.expunge_all()
     except Exception as e:
         print(f"[!] ERROR get_anand_repo:\n{e.__cause__}")
@@ -85,9 +87,9 @@ def get_anand_repos() -> list[RepositoryModel]:
 def get_anand_org(org_id: int) -> OrganizationModel:
     sesh = get_anand_sesh()
     try:
-        org = sesh.query(OrganizationModel)\
-            .where(OrganizationModel.id == org_id)\
-            .first()
+        org = (
+            sesh.query(OrganizationModel).where(OrganizationModel.id == org_id).first()
+        )
         if org is not None:
             sesh.expunge(org)
     except Exception as e:
@@ -101,9 +103,7 @@ def get_anand_org(org_id: int) -> OrganizationModel:
 def get_anand_repo(repo_id: int) -> RepositoryModel:
     sesh = get_anand_sesh()
     try:
-        repo = sesh.query(RepositoryModel)\
-            .where(RepositoryModel.id == repo_id)\
-            .first()
+        repo = sesh.query(RepositoryModel).where(RepositoryModel.id == repo_id).first()
         if repo is not None:
             sesh.expunge(repo)
     except Exception as e:
@@ -117,9 +117,7 @@ def get_anand_repo(repo_id: int) -> RepositoryModel:
 def get_anand_user(uid: int) -> UserModel:
     sesh = get_anand_sesh()
     try:
-        user = sesh.query(UserModel)\
-            .where(UserModel.id == uid)\
-            .first()
+        user = sesh.query(UserModel).where(UserModel.id == uid).first()
         if user is not None:
             sesh.expunge(user)
     except Exception as e:
@@ -133,7 +131,11 @@ def get_anand_user(uid: int) -> UserModel:
 def get_anand_readme(repo_id: int) -> ContentFileModel:
     sesh = get_anand_sesh()
     try:
-        readme = sesh.query(ContentFileModel).where(ContentFileModel.repository_id == repo_id).first()
+        readme = (
+            sesh.query(ContentFileModel)
+            .where(ContentFileModel.repository_id == repo_id)
+            .first()
+        )
         if readme is not None:
             sesh.expunge(readme)
     except Exception as e:
@@ -145,18 +147,18 @@ def get_anand_readme(repo_id: int) -> ContentFileModel:
 
 
 def collect_data(db_main: Session):
-
     repos = get_anand_repos()
     anand_total = len(repos)
     print(f"TOTAL COUNT: {anand_total}")
 
     idx = 0
     for repo in repos:
-
         idx += 1
         if idx % 100 == 0:
             sleep(1)
-        print(f"\n[*] INFO: ({idx}/{anand_total}): {repo.full_name}, stars: {repo.stargazers_count}")
+        print(
+            f"\n[*] INFO: ({idx}/{anand_total}): {repo.full_name}, stars: {repo.stargazers_count}"
+        )
         # pesky rule 1:
         readme = get_anand_readme(repo.id)
         if readme is not None:

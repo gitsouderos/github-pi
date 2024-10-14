@@ -19,9 +19,7 @@ def decode_file(readme: ContentFile) -> str:
 def get_file(file_id: int) -> ContentFile:
     db = next(get_session())
     try:
-        file = db.query(ContentFile)\
-            .where(ContentFile.id == file_id)\
-            .first()  # noqa E711
+        file = db.query(ContentFile).where(ContentFile.id == file_id).first()  # noqa E711
     except Exception as e:
         log_error(e.__cause__)
         raise
@@ -30,7 +28,6 @@ def get_file(file_id: int) -> ContentFile:
 
 
 def generate_embeddings(query: str) -> list[float]:
-
     client = ModelClient(host=MODEL_HOST_URL)
     query = query[:CHAR_LIMIT]
 
@@ -50,15 +47,13 @@ def get_similar_repos(query: str, limit: int = 5) -> list[Repository]:
 
     try:
         query_vector = generate_embeddings(query)
-        stmt = (select(Repository)
-                .order_by(
-                    Repository
-                    .readme
-                    .embedding
-                    .embedding
-                    .cosine_distance(query_vector)
-                    )
-                .limit(limit))
+        stmt = (
+            select(Repository)
+            .order_by(
+                Repository.readme.embedding.embedding.cosine_distance(query_vector)
+            )
+            .limit(limit)
+        )
 
         return db.scalars(stmt).all()
     except Exception as e:
@@ -66,10 +61,7 @@ def get_similar_repos(query: str, limit: int = 5) -> list[Repository]:
         raise
 
 
-def do_the_thing(
-        query: str,
-        cluster_limit: int = 5
-) -> list[Repository]:
+def do_the_thing(query: str, cluster_limit: int = 5) -> list[Repository]:
     """
     Do it all. Get similar repos from query
         -> Get repos in cluster
@@ -80,21 +72,23 @@ def do_the_thing(
     query_vector = generate_embeddings(query)
 
     try:
-        most_similar_repo = db.query(Repository)\
-                .join(ContentFile)\
-                .join(Embedding)\
-                .order_by(
-                        Embedding.embedding.cosine_distance(query_vector)
-                        )\
-                .limit(1)\
-                .first()
+        most_similar_repo = (
+            db.query(Repository)
+            .join(ContentFile)
+            .join(Embedding)
+            .order_by(Embedding.embedding.cosine_distance(query_vector))
+            .limit(1)
+            .first()
+        )
 
         stmt = (
-                select(Repository).join(ContentFile).join(Embedding)
-                .where(Repository.cluster == most_similar_repo.cluster)
-                .order_by(Embedding.embedding.cosine_distance(query_vector))
-                .limit(cluster_limit)
-                )
+            select(Repository)
+            .join(ContentFile)
+            .join(Embedding)
+            .where(Repository.cluster == most_similar_repo.cluster)
+            .order_by(Embedding.embedding.cosine_distance(query_vector))
+            .limit(cluster_limit)
+        )
         return db.scalars(stmt).all()
     except Exception as e:
         log_error(e.__str__)

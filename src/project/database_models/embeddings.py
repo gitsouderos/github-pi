@@ -3,6 +3,7 @@ from pgvector.sqlalchemy import Vector
 from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from project.database_models.base import Base
+
 if TYPE_CHECKING:
     from project.database_models.content_files import ContentFile
 

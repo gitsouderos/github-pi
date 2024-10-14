@@ -80,8 +80,12 @@ class Repository(Base):
     organization_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("organizations.id"), nullable=True
     )
-    owner_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)
-    parent_id: Mapped[Optional[int]] = mapped_column(ForeignKey("repositories.id"), nullable=True)
+    owner_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("users.id"), nullable=True
+    )
+    parent_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("repositories.id"), nullable=True
+    )
     # permissions: Deleted because of no documentations
     private: Mapped[bool] = mapped_column(Boolean)
     pulls_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
@@ -144,7 +148,6 @@ class Repository(Base):
 
     @classmethod
     def from_instance(cls, repo: GithubRepository):
-
         obj_data = repo.raw_data
 
         if repo.organization:
@@ -161,10 +164,9 @@ class Repository(Base):
 
         try:
             obj_data["languages"] = [
-                    Language(name=name,
-                             num_bytes=num_bytes,
-                             repository_id=repo.id)
-                    for name, num_bytes in repo.get_languages().items()]
+                Language(name=name, num_bytes=num_bytes, repository_id=repo.id)
+                for name, num_bytes in repo.get_languages().items()
+            ]
         except Exception as e:
             print(f"Warning: Failed to fetch languages,\n{e}")
 
@@ -175,8 +177,9 @@ class Repository(Base):
 
     @classmethod
     def from_dict(cls, obj_data: dict[str, any]):
-
         valid_keys = {prop.key for prop in class_mapper(cls).iterate_properties}
-        valid_data = {k: v for k, v in obj_data.items() if k in valid_keys and v is not None}
+        valid_data = {
+            k: v for k, v in obj_data.items() if k in valid_keys and v is not None
+        }
 
         return cls(**valid_data)

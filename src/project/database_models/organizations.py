@@ -30,8 +30,12 @@ class Organization(Base):
     email: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     twitter_username: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     is_verified: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
-    has_organization_projects: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
-    has_repository_projects: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
+    has_organization_projects: Mapped[Optional[bool]] = mapped_column(
+        Boolean, nullable=True
+    )
+    has_repository_projects: Mapped[Optional[bool]] = mapped_column(
+        Boolean, nullable=True
+    )
     public_repos: Mapped[int] = mapped_column(Integer)
     public_gists: Mapped[int] = mapped_column(Integer)
     followers: Mapped[int] = mapped_column(Integer)
@@ -52,7 +56,6 @@ class Organization(Base):
 
     @classmethod
     def from_instance(cls, org: GithubOrganization):
-
         obj_data = org.raw_data
         obj_data["type_of"] = org.type
 
@@ -63,9 +66,9 @@ class Organization(Base):
 
     @classmethod
     def from_dict(cls, obj_data: dict[str, any]):
-
         valid_keys = {prop.key for prop in class_mapper(cls).iterate_properties}
-        valid_data = {k: v for k, v in obj_data.items() if k in valid_keys and v is not None}
+        valid_data = {
+            k: v for k, v in obj_data.items() if k in valid_keys and v is not None
+        }
 
         return cls(**valid_data)
-

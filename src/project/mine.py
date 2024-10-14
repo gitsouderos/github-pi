@@ -41,14 +41,14 @@ def insert_repo(db: Session, repo: RepositoryModel):
 
 
 def get_latest_insert_star_count(db: Session) -> int:
-
-    latest_inserted: RepositoryModel = db.query(RepositoryModel).order_by(RepositoryModel.inserted_at.desc()).first()
+    latest_inserted: RepositoryModel = (
+        db.query(RepositoryModel).order_by(RepositoryModel.inserted_at.desc()).first()
+    )
 
     return latest_inserted.stargazers_count
 
 
 def collect_data(db: Session):
-
     latest_star_count = get_latest_insert_star_count(db)
     while latest_star_count >= 1000:
         query = f"stars:1000..{latest_star_count} sort:stars-desc"
