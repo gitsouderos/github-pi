@@ -1,5 +1,6 @@
 import os
 import time
+import re
 
 import google.generativeai as genai
 import streamlit as st
@@ -13,6 +14,7 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_CHAT_MODEL = os.getenv("GEMINI_CHAT_MODEL")
 IMG_PATH = os.getenv("IMG_PATH")
+PATTERN = r":::(.*?):::"
 
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel(
@@ -93,7 +95,11 @@ if "chat_session" not in st.session_state:
 # Display chat history on rerun
 for message in st.session_state.chat_session.history:
     with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+        if message["role"] == "user":
+            actual_prompt = re.findall(PATTERN, message["content"])[0]
+        else:
+            actual_prompt = message["content"]
+        st.markdown(actual_prompt)
 
 # React to user input
 if prompt := st.chat_input("How can I help you today?"):
@@ -105,7 +111,7 @@ if prompt := st.chat_input("How can I help you today?"):
     formatted_prompt = f"""
     Using the user prompt, provide the relevant info given the listed
     Repositories and README.md files.
-    <prompt> {prompt} </prompt>
+    <prompt> :::{prompt}::: </prompt>
     """
     for idx, repo in enumerate(repos):
         print(f"[*] Repo{idx}: {repo.name}")
