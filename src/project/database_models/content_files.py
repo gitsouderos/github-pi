@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 from sqlalchemy import Index, Integer, String, Text, ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped, class_mapper, relationship
 from github.ContentFile import ContentFile as GithubContentFile
+from project.config.settings import CHAR_LIMIT
 
 
 class ContentFile(Base):
@@ -32,6 +33,13 @@ class ContentFile(Base):
 
     __table_args__ = (Index("content_files_name", name),)
 
+    def get_content(self, full: bool = False) -> str:
+        content = self.content
+
+        if self.encoding == "base64":
+            content = b64decode(self.content).decode("utf-8")
+
+        return content if full else content[:CHAR_LIMIT]
 
     def __repr__(self):
         return (
@@ -43,7 +51,6 @@ class ContentFile(Base):
             f"inserted_at={self.inserted_at}, "
             f")"
         )
-
 
     @classmethod
     def from_instance(cls, file: GithubContentFile):

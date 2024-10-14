@@ -109,6 +109,7 @@ class Repository(Base):
     trees_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
     web_commit_signoff_required: Mapped[Optional[bool]] = mapped_column(Boolean)
+    cluster: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
     readme: Mapped[Optional["ContentFile"]] = relationship()
 
