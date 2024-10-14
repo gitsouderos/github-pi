@@ -5,6 +5,7 @@ import google.generativeai as genai
 import streamlit as st
 from dotenv import load_dotenv
 from google.generativeai.types import HarmBlockThreshold, HarmCategory
+from project.utils.embeddings_helper import do_the_thing
 
 load_dotenv()
 
@@ -98,8 +99,22 @@ for message in st.session_state.chat_session.history:
 if prompt := st.chat_input("How can I help you today?"):
     with st.chat_message("user"):
         st.markdown(prompt)
-    # Add user prompt to chat history
-    request = {"role": "user", "content": prompt}
+
+    # Get repos and format user prompt to chat history
+    repos = do_the_thing(prompt, cluster_limit=3)
+    formatted_prompt = f"""
+    Using the user prompt, provide the relevant info given the listed
+    Repositories and README.md files.
+    <prompt> {prompt} </prompt>
+    """
+    for idx, repo in enumerate(repos):
+        print(f"[*] Repo{idx}: {repo.name}")
+        formatted_prompt = formatted_prompt + f"""
+        <repository {idx} name>{repo.full_name}</repository {idx} name>
+        <README>{repo.readme.get_content(truncate=False)}<README>
+
+        """
+    request = {"role": "user", "content": formatted_prompt}
     st.session_state.chat_session.history.append(request)
 
     chat = model.start_chat(history=[])

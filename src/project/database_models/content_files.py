@@ -33,13 +33,13 @@ class ContentFile(Base):
 
     __table_args__ = (Index("content_files_name", name),)
 
-    def get_content(self, full: bool = False) -> str:
+    def get_content(self, truncate: bool = False) -> str:
         content = self.content
 
         if self.encoding == "base64":
             content = b64decode(self.content).decode("utf-8")
 
-        return content if full else content[:CHAR_LIMIT]
+        return content if truncate else content[:CHAR_LIMIT]
 
     def __repr__(self):
         return (

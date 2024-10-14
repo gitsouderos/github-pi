@@ -1,9 +1,9 @@
-from base64 import b64decode
 from ollama import Client as ModelClient
 from project.config.settings import MODEL_HOST_URL, EMBEDDING_MODEL, CHAR_LIMIT
 from project.config.db import get_session
 from project.database_models.content_files import ContentFile
 from project.database_models.repositories import Repository
+from project.database_models.embeddings import Embedding
 from sqlalchemy import select
 
 
@@ -62,7 +62,8 @@ def get_similar_repos(query: str, limit: int = 5) -> list[Repository]:
 
         return db.scalars(stmt).all()
     except Exception as e:
-        print(f"[!!!] ERROR generating embedding:\n{e}\n\n")
+        log_error(f"Error in get_similar_repos:\n{e}")
+        raise
 
 
 def do_the_thing(
@@ -80,20 +81,21 @@ def do_the_thing(
 
     try:
         most_similar_repo = db.query(Repository)\
+                .join(ContentFile)\
+                .join(Embedding)\
                 .order_by(
-                        Repository.readme
-                        .embedding.embedding
-                        .cosine_similarity(query_vector)
+                        Embedding.embedding.cosine_distance(query_vector)
                         )\
                 .limit(1)\
                 .first()
 
         stmt = (
-                select(Repository)
+                select(Repository).join(ContentFile).join(Embedding)
                 .where(Repository.cluster == most_similar_repo.cluster)
-                .order_by(Repository)
+                .order_by(Embedding.embedding.cosine_distance(query_vector))
                 .limit(cluster_limit)
                 )
         return db.scalars(stmt).all()
     except Exception as e:
-        print(f"[!!!] ERROR generating embedding:\n{e}\n\n")
+        log_error(e.__str__)
+        raise
