@@ -89,3 +89,5 @@ dmypy.json
 
 # Ruff 
 .ruff_cache/
+backups/labeled_repositories.csv
+backups/data_db_2024-10-11_1800.sql
